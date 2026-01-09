@@ -5,7 +5,7 @@ from ultralytics import YOLO
 # Load model once at startup
 try:
     # Upgraded confidence threshold to 0.6 for robustness
-    model = YOLO("yolov8n.pt") 
+    model = YOLO("yolo11n.pt") 
 except Exception as e:
     print(f"Error loading YOLO: {e}")
     model = None
