@@ -4,7 +4,7 @@ from groq import Groq
 
 # 🛡️ REPLACE WITH YOUR ACTUAL GROQ API KEY
 # Get it from https://console.groq.com/keys
-GROQ_API_KEY = "API_KEY"
+GROQ_API_KEY = "GROQ_API_KEY"
 client = Groq(api_key=GROQ_API_KEY)
 
 def encode_image(image_path):
