@@ -8,7 +8,7 @@ from perception.audio_input import record_audio
 from perception.speech_to_text import transcribe
 from perception.vision import count_people
 
-from reasoning.gemini_brain import ask
+from reasoning.groq_brain import ask
 from utils.language import detect_language, is_valid_speech
 from output.tts import speak
 from utils.sounds import beep
