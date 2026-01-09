@@ -5,7 +5,7 @@ scipy
 langdetect
 opencv-python
 ultralytics
-google-generativeai
 gTTS
 playsound==1.2.2
 pyttsx3
+groq

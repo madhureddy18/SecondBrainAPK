@@ -1,12 +1,11 @@
 def detect_intent(text):
     text = text.lower()
 
+    # Keywords that trigger the camera
     vision_keywords = [
-        "how many people",
-        "around me",
-        "in front of me",
-        "मेरे आसपास",
-        "कितने लोग"
+        "see", "look", "what is", "describe", "camera", "vision",
+        "objects", "items", "holding", "read", "text",
+        "मेरे सामने", "क्या है", "देखो", "पढ़ो"
     ]
 
     for kw in vision_keywords:

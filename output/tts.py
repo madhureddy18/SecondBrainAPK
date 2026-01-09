@@ -1,51 +1,42 @@
-import pyttsx3
-from gtts import gTTS
-import playsound
+import edge_tts
+import asyncio
+import pygame
 import os
 import time
-import threading
 
-# -------------------------
-# INITIALIZE ENGINE ONCE
-# -------------------------
-_engine = pyttsx3.init()
-_engine.setProperty("rate", 150)
-_engine.setProperty("volume", 1.0)
-
-_lock = threading.Lock()
-
-
-def _speak_pyttsx3(text):
-    with _lock:
-        _engine.stop()                 # stop any previous speech
-        _engine.say(text)
-        _engine.runAndWait()           # BLOCK until finished
-        time.sleep(0.3)                # allow audio buffer to flush
-
-
-def _speak_gtts(text, lang):
-    filename = "out.mp3"
-    tts = gTTS(text=text, lang=lang)
-    tts.save(filename)
-    playsound.playsound(filename, block=True)
-    os.remove(filename)
-    time.sleep(0.3)
-
-
-# -------------------------
-# PUBLIC API
-# -------------------------
 def speak(text, lang="en"):
-    """
-    Guaranteed blocking TTS.
-    Blind-safe: function returns ONLY after speech finishes.
-    """
+    """High-quality neural TTS that supports English and Hindi."""
     if not text or len(text.strip()) == 0:
         return
 
-    print("[TTS]", text)   # debug only
+    # Map languages to Neural Voices
+    voice = "hi-IN-MadhurNeural" if lang == "hi" else "en-US-GuyNeural"
+    output_file = "temp_voice.mp3"
 
-    if lang == "hi":
-        _speak_gtts(text, "hi")
-    else:
-        _speak_pyttsx3(text)
+    async def _generate():
+        communicate = edge_tts.Communicate(text, voice)
+        await communicate.save(output_file)
+
+    try:
+        # 1. Generate the audio file
+        asyncio.run(_generate())
+
+        # 2. Play the audio
+        pygame.mixer.init()
+        pygame.mixer.music.load(output_file)
+        pygame.mixer.music.play()
+
+        # 3. Wait for audio to finish
+        while pygame.mixer.music.get_busy():
+            time.sleep(0.1)
+        
+        pygame.mixer.quit()
+    except Exception as e:
+        print(f"TTS Error: {e}")
+    finally:
+        # 4. Clean up temporary file
+        if os.path.exists(output_file):
+            try:
+                os.remove(output_file)
+            except:
+                pass
