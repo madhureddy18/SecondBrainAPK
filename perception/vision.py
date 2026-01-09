@@ -7,26 +7,42 @@ try:
 except:
     model = None
 
-def count_people():
+def get_vision_data():
+    """
+    Captures a frame from the camera, saves it as 'capture.jpg',
+    and returns a dictionary of detected objects and the image path.
+    """
     if model is None:
-        return None
+        return None, None
 
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
-        return None
+        return None, None
 
     ret, frame = cap.read()
     cap.release()
 
     if not ret:
-        return None
+        return None, None
 
+    # Save image for LLM scene analysis (Llama 3.2 Vision)
+    image_path = "capture.jpg"
+    cv2.imwrite(image_path, frame)
+
+    # Run YOLO for local object counting (people, bottles, etc.)
     results = model(frame, verbose=False)
-    count = 0
+    detections = {}
 
     for r in results:
         for box in r.boxes:
-            # check the class name for 'person'
-            if model.names[int(box.cls[0])] == "person":
-                count += 1
-    return count
+            label = model.names[int(box.cls[0])]
+            detections[label] = detections.get(label, 0) + 1
+            
+    return detections, image_path
+
+def count_people():
+    """Legacy function support: returns just the person count."""
+    detections, _ = get_vision_data()
+    if detections:
+        return detections.get("person", 0)
+    return 0

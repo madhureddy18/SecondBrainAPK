@@ -4,7 +4,7 @@ from groq import Groq
 
 # 🛡️ REPLACE WITH YOUR ACTUAL GROQ API KEY
 # Get it from https://console.groq.com/keys
-GROQ_API_KEY = "PASTE_YOUR_GROQ_KEY_HERE"
+GROQ_API_KEY = "API_KEY"
 client = Groq(api_key=GROQ_API_KEY)
 
 def encode_image(image_path):
@@ -22,7 +22,7 @@ def ask(text, lang="en", image_path=None):
 
     try:
         if image_path and os.path.exists(image_path):
-            # 🖼️ VISION MODE: Using Llama 3.2 Vision
+            # 🖼️ VISION MODE: Using Llama 4 Scout (Replacement for Llama 3.2 Vision)
             base64_image = encode_image(image_path)
             messages = [
                 {"role": "system", "content": system_msg},
@@ -37,9 +37,10 @@ def ask(text, lang="en", image_path=None):
                     ]
                 }
             ]
-            model_name = "llama-3.2-11b-vision-preview"
+            # Updated Model ID
+            model_name = "meta-llama/llama-4-scout-17b-16e-instruct"
         else:
-            # 💬 TEXT MODE: Using Llama 3.3 70B (Fast & Smart)
+            # 💬 TEXT MODE: Using Llama 3.3 70B
             messages = [
                 {"role": "system", "content": system_msg},
                 {"role": "user", "content": text}

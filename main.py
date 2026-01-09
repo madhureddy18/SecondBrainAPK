@@ -6,7 +6,7 @@ from core.memory import Memory
 
 from perception.audio_input import record_audio
 from perception.speech_to_text import transcribe
-from perception.vision import count_people
+from perception.vision import get_vision_data # Updated import
 
 from reasoning.groq_brain import ask
 from utils.language import detect_language, is_valid_speech
@@ -21,7 +21,7 @@ memory = Memory()
 
 print("Second Brain starting...")
 
-# 🔔 Startup cue
+# Startup cue
 beep(1000, 500)
 speak("Hi, how can I help you?", "en")
 
@@ -29,7 +29,6 @@ def run_interaction_cycle():
     # 1. LISTENING STATE
     state.set_state(StateManager.LISTENING)
     print("\n[SYSTEM] Listening...")
-    # Play a small beep to notify user the mic is open
     beep(800, 150) 
     record_audio("input.wav", duration=5)
 
@@ -44,7 +43,6 @@ def run_interaction_cycle():
         sys.exit()
 
     if not is_valid_speech(text):
-        # Only speak error if it wasn't just silence
         if len(text.strip()) > 0:
             speak("I didn't quite catch that. Could you repeat?", "en")
         return
@@ -57,27 +55,25 @@ def run_interaction_cycle():
     
     if intent == "VISION":
         print("[PROCESS] Analyzing environment...")
-        count = count_people()
-        if count is None:
+        # Captures image and local object counts
+        detections, image_path = get_vision_data()
+        
+        if image_path is None:
             response = "The camera is unavailable." if lang == "en" else "कैमरा उपलब्ध नहीं है।"
-        elif count == 0:
-            response = "I don't see anyone in front of you." if lang == "en" else "मुझे आपके सामने कोई नहीं दिख रहा।"
         else:
-            response = (
-                f"I see {count} {'person' if count==1 else 'people'} near you."
-                if lang == "en" else f"मुझे आपके पास {count} लोग दिख रहे हैं।"
-            )
+            # We pass the user's question and the image to the Groq Vision Brain.
+            # This identifies phones, bottles, fruits, and people naturally.
+            response = ask(text, lang, image_path=image_path)
     else:
         # General Conversation / AI Reasoning
         response = ask(text, lang)
 
-    # 🔊 LOUD AUDIO OUTPUT
+    # LOUD AUDIO OUTPUT
     print(f"Brain: {response}")
     speak(response, lang)
 
     # 4. RESET TO IDLE
     state.set_state(StateManager.IDLE)
-    # Pause so it doesn't immediately hear its own echo or restart too fast
     time.sleep(1.5) 
 
 if __name__ == "__main__":
