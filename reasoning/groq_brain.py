@@ -3,7 +3,7 @@ import base64
 from groq import Groq
 
 # 🛡️ REPLACE WITH YOUR ACTUAL GROQ API KEY
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "GROQ_API_KEY"
 client = Groq(api_key=GROQ_API_KEY)
 
 def encode_image(image_path):
